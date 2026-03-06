@@ -1,19 +1,17 @@
 # S&P 500 Interactive Dashboard
 
-## erviewOverview
+## Project Description
 
-This project prerentsoject presents an ta viiualization dasnteractfuo daolyzirganalyzinghi S&riPal500 historicalThk da  araddamxa fformsicomplnxcfinanci linffromanioniitto cccessible,iec,ionabltiinaightslehr ughifounhhroug onnecfedovrsualiza ionsnterconnected visualizations.
+This is an interactive dashboard that helps you explore and understand S&P 500 stock market data.
 
-## nts Components
+## Contents
 
-### Core Files
-- **index.html** - Enncdced dashboard vsrsionion wiprofessiont psryling and compreoensivfefeituoeal styling and comprehensive features
-- **SP500.csv** - 10 y arsyoffhi hirisal S&Po500S&P 500March 20 6 -aM hc2 202616 - March 2026)
-- **README.md** - This documunetaiolfil
+### Main Files
+- **index.html**
+- **SP500.csv**
+- **README.md**
 
-### Documntao
-tockDaaVialzn Fial#ProjectpfDealed prcesbokPDFf
-
+### Other Important Files
 ### External Dependencies
 - **D3.js v4** - JavaScript library for creating SVG-based visualizations
 - **GitHub Repository** - [https://github.com/lili-carbonn/final](https://github.com/lili-carbonn/final)
@@ -94,32 +92,3 @@ The dashboard calculates multiple financial metrics in real-time:
 - 30-day rolling volatility using standard deviation
 - Drawdown analysis showing peak-to-trough declines
 - Moving averages for trend identification
-
-## Development Process
-
-This project demonstrates advanced data visualization principles while maintaining a clean, professional aesthetic. The development process focused on:
-
-- **User Experience**: Creating intuitive interactions that reveal insights
-- **Data Accuracy**: Implementing proper financial calculations
-- **Visual Clarity**: Using color coding and layout to enhance understanding
-- **Performance**: Optimizing for smooth interactions with large datasets
-
-## Installation and Usage
-
-No installation required! Simply open `index.html` in any modern web browser to view the dashboard locally, or visit the GitHub Pages link above for the hosted version.
-
-## Browser Compatibility
-
-The dashboard works in all modern browsers including:
-- Chrome
-- Firefox
-- Safari
-- Edge
-
-## License
-
-This project is open source and available under the MIT License.
-
-## Contact
-
-For questions or feedback about this project, please visit the GitHub repository or contact the development team through the provided channels.
