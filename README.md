@@ -1,127 +1,125 @@
-Final Project - Interactive Data Visualization  
-===
+# S&P 500 Interactive Dashboard
 
-* Edit 04-Feb-2025 -> adding link to a Notion doc of ideas (totally optional, mainly ideas collected from recent convos w/ people) -> https://scented-flock-323.notion.site/Project-Ideas-18fcf1e51ce380f79f92d4faf3ae7b4a?pvs=4
+## erviewOverview
 
-The key learning experience of this course is the final project. 
-You will design a web site and interactive visualizations that answer questions you have, provide an exploratory interface to some topic of your own choosing, or take on a more ambitious experiment than A3. 
-You will acquire the data, design your visualizations, implement them, and critically evaluate the results. 
+This project prerentsoject presents an ta viiualization dasnteractfuo daolyzirganalyzinghi S&riPal500 historicalThk da  araddamxa fformsicomplnxcfinanci linffromanioniitto cccessible,iec,ionabltiinaightslehr ughifounhhroug onnecfedovrsualiza ionsnterconnected visualizations.
 
-The path to a good visualization is going to involve mistakes and wrong turns. 
-It is therefore important to recognize that mistakes are valuable in finding the path to a solution, to broadly explore the design space, and to iterate designs to improve possible solutions. 
-To help you explore the design space, we will hold events such as feedback sessions in which you propose your idea and initial designs and receive feedback from the class and staff.
+## nts Components
 
-Proposals / Idea Generation
----
+### Core Files
+- **index.html** - Enncdced dashboard vsrsionion wiprofessiont psryling and compreoensivfefeituoeal styling and comprehensive features
+- **SP500.csv** - 10 y arsyoffhi hirisal S&Po500S&P 500March 20 6 -aM hc2 202616 - March 2026)
+- **README.md** - This documunetaiolfil
 
-Submit project ideas using [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLSf2XmuFaKkR8k2aJ0ZjzVywih0R07dfO_NjVMcm8ZUwGrwoLg/viewform?usp=publish-editor).
+### Documntao
+tockDaaVialzn Fial#ProjectpfDealed prcesbokPDFf
 
-You're encouraged to submit many ideas-- staff will help you identify the most promising ones and possible roadblocks.
+### External Dependencies
+- **D3.js v4** - JavaScript library for creating SVG-based visualizations
+- **GitHub Repository** - [https://github.com/lili-carbonn/final](https://github.com/lili-carbonn/final)
 
-Please stick to 1-4 folks per team.
+## Dashboard Features
 
-Final Project Materials
----
-For your final project you must hand in the following items.
+### Four Interconnected Visualizations
 
-### Process Book
+1. **Price Analysis Chart**
+   - Displays S&P 500 price movements over time
+   - Interactive brush tool for zooming into specific time periods
+   - Moving averages (50-day and 200-day) for trend analysis
+   - Professional legend in top-left corner
 
-An important part of your project is your process book. Your process book details your steps in developing your solution, including the alternative designs you tried, and the insights you got. Develop your process book out of the project proposal. Equally important to your final results is how you got there! Your process book is the place you describe and document the space of possibilities you explored at each step of your project. It is not, however, a journal or lab notebook that describes every detail - you should think carefully about the important decisions you made and insights you gained and present your reasoning in a concise way.
+2. **Returns Analysis Chart**
+   - Shows daily percentage changes
+   - Zero line separates positive from negative returns
+   - Reveals market sentiment and emotional responses to events
 
-We strongly advise you to include many figures in your process book, including photos of your sketches of potential designs, screen shots from different visualization tools you explored, inspirations of visualizations you found online, etc. Several images illustrating changes in your design or focus over time will be far more informative than text describing those changes. Instead, use text to describe the rationale behind the evolution of your project.
+3. **Volatility Analysis Chart**
+   - Displays 30-day rolling volatility
+   - Measures market uncertainty and risk levels
+   - Spikes during market stress periods
 
-Your process book should include the following topics. Depending on your project type the amount of discussion you devote to each of them will vary:
+4. **Drawdown Analysis Chart**
+   - Shows percentage decline from previous market peaks
+   - Essential for understanding potential investment risk
+   - Blue shaded area represents magnitude of corrections
 
-- Overview and Motivation: Provide an overview of the project goals and the motivation for it. Consider that this will be read by people who did not see your project proposal.
-- Related Work: Anything that inspired you, such as a paper, a web site, visualizations we discussed in class, etc.
-- Questions: What questions are you trying to answer? How did these questions evolve over the course of the project? What new questions did you consider in the course of your analysis?
-- Data: Source, scraping method, cleanup, etc.
-- Exploratory Data Analysis: What visualizations did you use to initially look at your data? What insights did you gain? How did these insights inform your design?
-- Design Evolution: What are the different visualizations you considered? Justify the design decisions you made using the perceptual and design principles you learned in the course. Did you deviate from your proposal?
-- Implementation: Describe the intent and functionality of the interactive visualizations you implemented. Provide clear and well-referenced images showing the key design and interaction elements.
-- Evaluation: What did you learn about the data by using your visualizations? How did you answer your questions? How well does your visualization work, and how could you further improve it?
+### Interactive Features
+- **Brush and Zoom**: Drag on the price chart to examine specific time periods
+- **Coordinated Updates**: All charts update together when selecting time ranges
+- **Enhanced Tooltips**: Hover over any data point for detailed information
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Reset Function**: Return to full time range view
 
-As this will be your only chance to describe your project in detail make sure that your process book is a standalone document that fully describes your results and the final design. 
-[Here](http://dataviscourse.net/2015/assets/process_books/bansal_cao_hou.pdf) are a [few examples](http://dataviscourse.net/2015/assets/process_books/walsh_trevino_bett.pdf) of process books from a similar course final.
+## Technical Implementation
 
-Tip: Start your process book on Day 1. Make entries after each meeting, and trim / edit as needed towards the end of the project. Many folks use either slides software (like PowerPoint) or Google Docs to make this book, as both allow for flexible layouts and export to PDF.
+### Libraries Used
+- **D3.js v4** - Primary visualization library for SVG-based charts
+- **Pure HTML/CSS/JavaScript** - No frameworks required for instant loading
 
+### Key Features
+- **Performance Optimized**: Efficient rendering for 2,500+ data points
+- **Accessibility**: Screen reader friendly with ARIA labels
+- **Professional Tooltips**: Enhanced information display on data points
+- **Data Processing**: Comprehensive metrics calculation including moving averages, volatility, and drawdown analysis
 
-### Project Website
+## Project Website
 
-Create a public website for your project using GitHub pages or another web hosting service of your choice. 
-The web site should contain your interactive visualization, summarize the main results of the project, and tell a story. 
-Consider your audience (the site should be public if possible, unless you're running an experiment, etc.) and keep the level of discussion at the appropriate level. 
-Your process book and data should be linked from the web site as well. 
-Also embed your interactive visualization and your screen-cast in your website. 
-If you are not able to publish your work (e.g., due to confidential data) please let us know in your project proposal.
+**Live Dashboard**: [https://lili-carbonn.github.io/final/](https://lili-carbonn.github.io/final/)
 
-### Project Screen-Cast
+The dashboard is hosted on GitHub Pages and provides immediate access to the interactive visualizations.
 
-Each team will create a two minute screen-cast with narration showing a demo of your visualization and/or some slides. 
+## Screen-Cast Video
 
-You can use any screencast tool of your choice, such as Camtasia or Loom (new and recommended). 
-Please make sure that the sound quality of your video is good -- it may be worthwhile to invest in an external USB microphone-- campus IT should have some you can borrow. 
-Upload the video to an online video-platform such as YouTube or Vimeo and embed it into your project web page. 
-For our final project presentation day, we will show as many videos in class as possible, and ask teams to field questions.
+**Project Video**: [https://youtu.be/LJ89qpB46FU](https://youtu.be/LJ89qpB46FU)
 
-We will strictly enforce the two minute time limit for the video, so please make sure you are not running longer. 
-Use principles of good storytelling and presentations to get your key points across. Focus the majority of your screencast on your main contributions rather than on technical details. 
-What do you feel is the best part of your project? 
-What insights did you gain? 
-What is the single most important thing you would like your audience to take away? Make sure it is front and center rather than at the end.
+A 2-minute screen-cast demonstrating the dashboard's features and explaining the project's key insights and contributions.
 
-Outside Libraries/References
----
+## Non-Obvious Interface Features
 
-For this project you *do not* have to write everything from scratch.
+### 1. Coordinated Chart Updates
+When you select a time range on the price chart using the brush tool, all other charts automatically update to show the same time period. This allows for comprehensive analysis of specific market events across all metrics simultaneously.
 
-You may *reference* demo programs from books or the web, and *include* popular web libraries like Material UI, React, Svelte, etcetera. 
+### 2. Moving Average Toggle
+The "Moving avgs" checkbox controls the display of 50-day and 200-day moving averages on the price chart. These smoothed trend lines help identify longer-term market direction and potential support/resistance levels.
 
-Please *do not* use libraries on top of d3 without consulting staff, however. 
-Libraries like nvd3.js look tempting, but such libraries often have poor defaults and result in poor visualizations.
-There may be exceptions.
-Instead, draw from the numerous existing d3 examples on the web.
+### 3. Professional Legend Positioning
+The legend is positioned in the top-left corner of the price chart, providing clear identification of chart elements without interfering with data visualization.
 
-If you use outside sources please provide a References section with links at the end of your Readme.
+### 4. Responsive Design
+The dashboard automatically adapts to different screen sizes, ensuring optimal viewing experience across devices without requiring separate mobile versions.
 
-Resources
----
-The "[Data is Plural](https://tinyletter.com/data-is-plural/archive)" weekly letter often contains interesting datasets.
+### 5. Data Processing
+The dashboard calculates multiple financial metrics in real-time:
+- Daily returns from price data
+- 30-day rolling volatility using standard deviation
+- Drawdown analysis showing peak-to-trough declines
+- Moving averages for trend identification
 
-KAGGLE IS BANNED! You may propose to use a dataset from there if you really have a deep/cool idea, but please run it by me first.
+## Development Process
 
-Think of something you're interested in, go find data on it! Include data collection and processing as part of your work on this project.
+This project demonstrates advanced data visualization principles while maintaining a clean, professional aesthetic. The development process focused on:
 
-Requirements
----
+- **User Experience**: Creating intuitive interactions that reveal insights
+- **Data Accuracy**: Implementing proper financial calculations
+- **Visual Clarity**: Using color coding and layout to enhance understanding
+- **Performance**: Optimizing for smooth interactions with large datasets
 
-Store the following in your GitHub repository:
+## Installation and Usage
 
-- Code - All web site files and libraries assuming they are not too big to include
-- Data - Include all the data that you used in your project. If the data is too large for github store it on a cloud storage provider, such as Dropbox or Yousendit.
-- Process Book- Your Process Book in PDF format.
-- README - The README file must give an overview of what you are handing in: which parts are your code, which parts are libraries, and so on. The README must contain URLs to your project websites and screencast videos. The README must also explain any non-obvious features of your interface.
+No installation required! Simply open `index.html` in any modern web browser to view the dashboard locally, or visit the GitHub Pages link above for the hosted version.
 
-GitHub Details
----
+## Browser Compatibility
 
-- Fork the repo. You now have a copy associated with your username.
-- Make changes to index.html to fulfill the project requirements. 
-- Make sure your "main" branch matches your "gh-pages" branch. See the GitHub Guides referenced above if you need help.
-- Edit the README.md with a link to your gh-pages or other external site: for example http://YourUsernameGoesHere.github.io/DataVisFinal/index.html
-- To submit, make a [Pull Request](https://help.github.com/articles/using-pull-requests/) on the original repository.
+The dashboard works in all modern browsers including:
+- Chrome
+- Firefox
+- Safari
+- Edge
 
-Grading
----
+## License
 
-- Process Book - Are you following a design process that is well documented in your process book?
-- Solution - Is your visualization effective in answering your intended questions? Was it designed following visualization principles?
-- Implementation - What is the quality of your implementation? Is it appropriately polished, robust, and reliable?
-- Presentation - Are your web site and screencast clear, engaging, and effective?
-Your individual project score will also be influenced by your peer evaluations.
+This project is open source and available under the MIT License.
 
-References
----
+## Contact
 
-- This final project is adapted from https://www.dataviscourse.net/2020/project/
+For questions or feedback about this project, please visit the GitHub repository or contact the development team through the provided channels.

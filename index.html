@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>S&P 500 Dashboard</title>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    :root{
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: rgba(15, 23, 42, 0.65);
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 6px 24px rgba(15,23,42,0.08);
+      --radius: 14px;
+    }
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .wrap{ max-width: 1160px; margin: 28px auto 44px; padding: 0 18px; }
+    header{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    h1{ margin: 0; font-size: 20px; font-weight: 750; letter-spacing: -0.01em; }
+    .sub{ margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .toolbar{ display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+
+    button{
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 1px 0 rgba(15,23,42,0.03);
+    }
+    button:hover{ background: rgba(255,255,255,0.6); }
+
+    label{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      box-shadow: 0 1px 0 rgba(15,23,42,0.03);
+      user-select: none;
+    }
+    input[type="checkbox"]{ transform: translateY(1px); }
+
+    .grid{ display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+      .span-2{ grid-column: 1 / -1; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 8px;
+      overflow: hidden; 
+    }
+    .card h2{
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.005em;
+      color: rgba(15,23,42,0.9);
+    }
+    .hint{ margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+    /* D3 styles */
+    .gridline line { stroke: #000; stroke-opacity: 0.06; shape-rendering: crispEdges; }
+    .axis path, .axis line { shape-rendering: crispEdges; stroke: rgba(15,23,42,0.35); }
+    .axis text { fill: rgba(15,23,42,0.70); font-size: 11px; }
+    .brush .selection { fill: rgba(59,130,246,0.14); stroke: rgba(59,130,246,0.45); shape-rendering: crispEdges; }
+    .legend { font-size: 11px; fill: rgba(15,23,42,0.68); }
+
+    .tooltip{
+      position: absolute;
+      pointer-events: none;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(15,23,42,0.16);
+      border-radius: 12px;
+      padding: 9px 10px;
+      font-size: 12.5px;
+      color: rgba(15,23,42,0.92);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.14);
+      opacity: 0;
+      transform: translateY(-2px);
+      min-width: 170px;
+    }
+    .tooltip .t-muted{ color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .sr{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>S&P 500</h1>
+        <div class="sub">Drag on <strong>Price</strong> to zoom. Hover any chart for values.</div>
+        <div class="sub" style="margin-top: 8px; font-size: 12px; color: #64748b;">
+          <a href="https://youtu.be/LJ89qpB46FU" style="color: #2563eb; text-decoration: none; margin-right: 16px;">🎬 Watch Project Video</a>
+          <a href="Stock Data Visualization Final Project.pdf" style="color: #2563eb; text-decoration: none; margin-right: 16px;">📄 View Process Book (PDF)</a>
+          <a href="SP500.csv" style="color: #2563eb; text-decoration: none; margin-right: 16px;">📊 Download Dataset</a>
+          <a href="https://github.com/lili-carbonn/final" style="color: #2563eb; text-decoration: none;">🔗 GitHub Repository</a>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="Controls">
+        <button id="reset">Reset</button>
+        <label><input id="toggleMA" type="checkbox" checked /> Moving avgs</label>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card span-2">
+        <h2>Price</h2>
+        <div id="chart-price"></div>
+      </div>
+
+      <div class="card">
+        <h2>Returns</h2>
+        <div id="chart-returns"></div>
+      </div>
+
+      <div class="card">
+        <h2>Volatility</h2>
+        <div id="chart-vol"></div>
+      </div>
+
+      <div class="card span-2">
+        <h2>Drawdown</h2>
+        <div id="chart-dd"></div>
+        <div class="hint">Tip: select a range on <strong>Price</strong>, then press <strong>Reset</strong> to go back.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+  <div class="sr" id="status" aria-live="polite"></div>
+
+  <script>
+
+    var parseDate = d3.timeParse("%Y-%m-%d");
+    var formatDate = d3.timeFormat("%b %d, %Y");
+    var fmtPrice = d3.format(",.2f");
+    var fmtPct2 = d3.format("+.2%");
+    var fmtPct1 = d3.format("+.1%");
+
+    function isMissing(v){
+      return v === null || v === undefined || v === "" || v === "." || (typeof v === "string" && v.trim() === "");
+    }
+
+    function movingAverage(series, window){
+      var out = new Array(series.length);
+      var sum = 0, q = [];
+      for (var i = 0; i < series.length; i++){
+        var v = series[i].value;
+        q.push(v);
+        sum += v;
+        if (q.length > window) sum -= q.shift();
+        out[i] = (q.length === window) ? (sum / window) : NaN;
+      }
+      return out;
+    }
+
+    function rollingStd(series, window){
+      var out = new Array(series.length);
+      var q = [];
+      for (var i = 0; i < series.length; i++){
+        var v = series[i];
+        q.push(v);
+        if (q.length > window) q.shift();
+        if (q.length === window && q.every(function(x){ return isFinite(x); })) {
+          var mean = d3.mean(q);
+          var variance = d3.mean(q.map(function(x){ var d=x-mean; return d*d; }));
+          out[i] = Math.sqrt(variance);
+        } else {
+          out[i] = NaN;
+        }
+      }
+      return out;
+    }
+
+    var __clipCounter = 0;
+
+    function makeSvg(containerId, height){
+      var margin = {top: 10, right: 18, bottom: 36, left: 62};
+      var width = 1100 - margin.left - margin.right;
+
+      var node = document.querySelector(containerId);
+      var w = Math.min(width + margin.left + margin.right, node.getBoundingClientRect().width);
+      var innerW = w - margin.left - margin.right;
+
+      var svg = d3.select(containerId).append("svg")
+        .attr("width", w)
+        .attr("height", height + margin.top + margin.bottom);
+
+      __clipCounter += 1;
+      var clipId = "clip-" + __clipCounter;
+
+      var defs = svg.append("defs");
+      defs.append("clipPath")
+        .attr("id", clipId)
+        .append("rect")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("width", innerW)
+          .attr("height", height);
+
+      var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+      var dataLayer = g.append("g").attr("clip-path", "url(#" + clipId + ")");
+
+      return {svg: svg, g: g, dataLayer: dataLayer, width: innerW, height: height, margin: margin, clipId: clipId};
+    }
+
+    function addGrid(g, y, width){
+      g.append("g")
+        .attr("class", "gridline")
+        .call(d3.axisLeft(y).ticks(6).tickSize(-width).tickFormat(""));
+    }
+
+    function addAxes(g, x, y, height){
+      g.append("g").attr("class", "axis x-axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks(8));
+      g.append("g").attr("class", "axis y-axis")
+        .call(d3.axisLeft(y).ticks(6));
+    }
+
+    var tooltip = d3.select("#tooltip");
+    var status = d3.select("#status");
+
+    function showTip(title, lines, pageX, pageY){
+      var html = "<div><strong>" + title + "</strong></div>";
+      for (var i=0; i<lines.length; i++){
+        html += "<div class='t-muted'>" + lines[i] + "</div>";
+      }
+      tooltip.html(html)
+        .style("left", (pageX + 12) + "px")
+        .style("top", (pageY - 28) + "px")
+        .style("opacity", 1);
+    }
+    function hideTip(){ tooltip.style("opacity", 0); }
+
+    d3.csv("SP500.csv", function(raw) {
+      var data = raw.map(function(d){
+        var dt = parseDate(d.observation_date);
+        var v = isMissing(d.SP500) ? NaN : +d.SP500;
+        return { date: dt, value: v };
+      })
+      .filter(function(d){ return d.date; })
+      .sort(function(a,b){ return a.date - b.date; });
+
+      var dataClean = data.filter(function(d){ return isFinite(d.value); });
+
+      var ma50  = movingAverage(dataClean, 50);
+      var ma200 = movingAverage(dataClean, 200);
+
+      var returns = dataClean.map(function(d, i){
+        if (i === 0) return NaN;
+        var prev = dataClean[i-1].value;
+        return (d.value / prev) - 1;
+      });
+
+      var vol30 = rollingStd(returns, 30).map(function(s){ return isFinite(s) ? (s * Math.sqrt(252)) : NaN; });
+
+      var peak = -Infinity;
+      var dd = dataClean.map(function(d){
+        peak = Math.max(peak, d.value);
+        return (d.value / peak) - 1;
+      });
+
+      var fullDomain = d3.extent(dataClean, function(d){ return d.date; });
+      var currentDomain = fullDomain.slice();
+
+      var x = d3.scaleTime().domain(currentDomain);
+
+      var updaters = [];
+
+      function setDomain(newDomain, announce){
+        currentDomain = newDomain ? newDomain.slice() : fullDomain.slice();
+        x.domain(currentDomain);
+        updaters.forEach(function(fn){ fn(); });
+        if (announce) status.text("Zoom: " + formatDate(currentDomain[0]) + " to " + formatDate(currentDomain[1]));
+      }
+
+      d3.select("#reset").on("click", function(){
+        setDomain(null, true);
+        if (priceBrushG) priceBrushG.call(priceBrush.move, null);
+      });
+
+      var showMA = true;
+      d3.select("#toggleMA").on("change", function(){
+        showMA = this.checked;
+        updaters.forEach(function(fn){ fn(); });
+      });
+
+      var priceBrush = d3.brushX();
+      var priceBrushG = null;
+
+      (function(){
+        var C = makeSvg("#chart-price", 320);
+        x.range([0, C.width]);
+
+        var y = d3.scaleLinear()
+          .domain(d3.extent(dataClean, function(d){ return d.value; }))
+          .range([C.height, 0]).nice();
+
+        addGrid(C.g, y, C.width);
+        addAxes(C.g, x, y, C.height);
+
+        var linePrice = d3.line()
+          .x(function(d){ return x(d.date); })
+          .y(function(d){ return y(d.value); });
+
+        var lineMA = d3.line()
+          .defined(function(d){ return isFinite(d.v); })
+          .x(function(d){ return x(d.date); })
+          .y(function(d){ return y(d.v); });
+
+        var pathPrice = C.dataLayer.append("path")
+          .datum(dataClean)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.8)
+          .attr("d", linePrice);
+
+        var ma50Series = dataClean.map(function(d,i){ return {date:d.date, v: ma50[i]}; });
+        var ma200Series = dataClean.map(function(d,i){ return {date:d.date, v: ma200[i]}; });
+
+        var pathMA50 = C.dataLayer.append("path")
+          .datum(ma50Series)
+          .attr("fill", "none")
+          .attr("stroke", "orange")
+          .attr("stroke-width", 1.25)
+          .attr("d", lineMA);
+
+        var pathMA200 = C.dataLayer.append("path")
+          .datum(ma200Series)
+          .attr("fill", "none")
+          .attr("stroke", "purple")
+          .attr("stroke-width", 1.25)
+          .attr("d", lineMA);
+
+        var legend = C.g.append("g").attr("class", "legend").attr("transform", "translate(10, 10)");
+        var items = [
+          {label:"Price", color:"steelblue"},
+          {label:"MA 50", color:"orange"},
+          {label:"MA 200", color:"purple"}
+        ];
+        items.forEach(function(it, i){
+          var gx = legend.append("g").attr("transform", "translate(" + (i*70) + ",0)");
+          gx.append("line").attr("x1",0).attr("x2",16).attr("y1",0).attr("y2",0).attr("stroke", it.color).attr("stroke-width", 3);
+          gx.append("text").attr("x", 20).attr("y", 4).text(it.label);
+        });
+
+        var bisect = d3.bisector(function(d){ return d.date; }).left;
+        var focus = C.dataLayer.append("g").style("display", "none");
+        focus.append("circle").attr("r", 4.5).attr("fill", "steelblue").attr("stroke", "white").attr("stroke-width", 1.5);
+
+        C.g.append("rect")
+          .attr("width", C.width)
+          .attr("height", C.height)
+          .attr("fill", "none")
+          .attr("pointer-events", "all")
+          .on("mouseover", function(){ focus.style("display", null); })
+          .on("mouseout", function(){ focus.style("display", "none"); hideTip(); })
+          .on("mousemove", function(){
+            var mouse = d3.mouse(this);
+            var x0 = x.invert(mouse[0]);
+            var i = bisect(dataClean, x0, 1);
+            var d0 = dataClean[i-1];
+            var d1 = dataClean[i];
+            var d = d1 && (x0 - d0.date > d1.date - x0) ? d1 : d0;
+
+            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.value) + ")");
+            showTip(formatDate(d.date), ["Price: " + fmtPrice(d.value)], d3.event.pageX, d3.event.pageY);
+          });
+
+        priceBrush.extent([[0, 0], [C.width, C.height]])
+          .on("end", function(){
+            if (!d3.event.selection) return;
+            var s = d3.event.selection;
+            var d0 = x.invert(s[0]);
+            var d1 = x.invert(s[1]);
+            if (+d1 - +d0 < 24*60*60*1000) return;
+            setDomain([d0, d1], true);
+          });
+
+        priceBrushG = C.g.append("g").attr("class", "brush").call(priceBrush);
+
+        function update(){
+          C.g.select(".x-axis").call(d3.axisBottom(x).ticks(8));
+          pathPrice.attr("d", linePrice);
+          pathMA50.style("display", showMA ? null : "none").attr("d", lineMA);
+          pathMA200.style("display", showMA ? null : "none").attr("d", lineMA);
+        }
+        updaters.push(update);
+      })();
+
+      (function(){
+        var C = makeSvg("#chart-returns", 250);
+        x.range([0, C.width]);
+
+        var returnsAll = dataClean.map(function(d,i){ return {date: d.date, r: returns[i]}; })
+          .filter(function(d){ return isFinite(d.r); });
+
+        var y = d3.scaleLinear()
+          .domain(d3.extent(returnsAll, function(d){ return d.r; }))
+          .range([C.height, 0]).nice();
+
+        addGrid(C.g, y, C.width);
+        addAxes(C.g, x, y, C.height);
+
+        var line = d3.line()
+          .x(function(d){ return x(d.date); })
+          .y(function(d){ return y(d.r); });
+
+        var path = C.dataLayer.append("path")
+          .datum(returnsAll)
+          .attr("fill", "none")
+          .attr("stroke", "seagreen")
+          .attr("stroke-width", 1.35)
+          .attr("d", line);
+
+        var zero = C.dataLayer.append("line")
+          .attr("x1", 0).attr("x2", C.width)
+          .attr("y1", y(0)).attr("y2", y(0))
+          .attr("stroke", "rgba(15,23,42,0.35)")
+          .attr("stroke-width", 1);
+
+        var bisect = d3.bisector(function(d){ return d.date; }).left;
+        var focus = C.dataLayer.append("g").style("display", "none");
+        focus.append("circle").attr("r", 4.3).attr("fill", "seagreen").attr("stroke", "white").attr("stroke-width", 1.5);
+
+        C.g.append("rect")
+          .attr("width", C.width)
+          .attr("height", C.height)
+          .attr("fill", "none")
+          .attr("pointer-events", "all")
+          .on("mouseover", function(){ focus.style("display", null); })
+          .on("mouseout", function(){ focus.style("display", "none"); hideTip(); })
+          .on("mousemove", function(){
+            var mouse = d3.mouse(this);
+            var x0 = x.invert(mouse[0]);
+            var i = bisect(returnsAll, x0, 1);
+            var d0 = returnsAll[i-1];
+            var d1 = returnsAll[i];
+            var d = d1 && (x0 - d0.date > d1.date - x0) ? d1 : d0;
+
+            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.r) + ")");
+            showTip(formatDate(d.date), ["Return: " + fmtPct2(d.r)], d3.event.pageX, d3.event.pageY);
+          });
+
+        function update(){
+          var dom = x.domain();
+          var series = returnsAll.filter(function(d){ return d.date >= dom[0] && d.date <= dom[1]; });
+
+          if (series.length > 5) y.domain(d3.extent(series, function(d){ return d.r; })).nice();
+          else y.domain(d3.extent(returnsAll, function(d){ return d.r; })).nice();
+
+          C.g.select(".x-axis").call(d3.axisBottom(x).ticks(8));
+          C.g.select(".y-axis").call(d3.axisLeft(y).ticks(6));
+          C.g.select(".gridline").call(d3.axisLeft(y).ticks(6).tickSize(-C.width).tickFormat(""));
+
+          path.datum(series.length ? series : returnsAll).attr("d", line);
+          zero.attr("x2", C.width).attr("y1", y(0)).attr("y2", y(0));
+        }
+        updaters.push(update);
+      })();
+
+      (function(){
+        var C = makeSvg("#chart-vol", 250);
+        x.range([0, C.width]);
+
+        var volAll = dataClean.map(function(d,i){ return {date: d.date, v: vol30[i]}; })
+          .filter(function(d){ return isFinite(d.v); });
+
+        var y = d3.scaleLinear()
+          .domain(d3.extent(volAll, function(d){ return d.v; }))
+          .range([C.height, 0]).nice();
+
+        addGrid(C.g, y, C.width);
+        addAxes(C.g, x, y, C.height);
+
+        var line = d3.line()
+          .x(function(d){ return x(d.date); })
+          .y(function(d){ return y(d.v); });
+
+        var path = C.dataLayer.append("path")
+          .datum(volAll)
+          .attr("fill", "none")
+          .attr("stroke", "crimson")
+          .attr("stroke-width", 1.4)
+          .attr("d", line);
+
+  
+        var bisect = d3.bisector(function(d){ return d.date; }).left;
+        var focus = C.dataLayer.append("g").style("display", "none");
+        focus.append("circle").attr("r", 4.3).attr("fill", "crimson").attr("stroke", "white").attr("stroke-width", 1.5);
+
+        C.g.append("rect")
+          .attr("width", C.width)
+          .attr("height", C.height)
+          .attr("fill", "none")
+          .attr("pointer-events", "all")
+          .on("mouseover", function(){ focus.style("display", null); })
+          .on("mouseout", function(){ focus.style("display", "none"); hideTip(); })
+          .on("mousemove", function(){
+            var mouse = d3.mouse(this);
+            var x0 = x.invert(mouse[0]);
+            var i = bisect(volAll, x0, 1);
+            var d0 = volAll[i-1];
+            var d1 = volAll[i];
+            var d = d1 && (x0 - d0.date > d1.date - x0) ? d1 : d0;
+
+            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.v) + ")");
+            showTip(formatDate(d.date), ["Vol (30d): " + fmtPct1(d.v)], d3.event.pageX, d3.event.pageY);
+          });
+
+        function update(){
+          var dom = x.domain();
+          var series = volAll.filter(function(d){ return d.date >= dom[0] && d.date <= dom[1]; });
+
+          if (series.length > 5) y.domain(d3.extent(series, function(d){ return d.v; })).nice();
+          else y.domain(d3.extent(volAll, function(d){ return d.v; })).nice();
+
+          C.g.select(".x-axis").call(d3.axisBottom(x).ticks(8));
+          C.g.select(".y-axis").call(d3.axisLeft(y).ticks(6));
+          C.g.select(".gridline").call(d3.axisLeft(y).ticks(6).tickSize(-C.width).tickFormat(""));
+          path.datum(series.length ? series : volAll).attr("d", line);
+        }
+        updaters.push(update);
+      })();
+
+      (function(){
+        var C = makeSvg("#chart-dd", 250);
+        x.range([0, C.width]);
+
+        var ddAll = dataClean.map(function(d,i){ return {date: d.date, dd: dd[i]}; })
+          .filter(function(d){ return isFinite(d.dd); });
+
+        var y = d3.scaleLinear()
+          .domain([d3.min(ddAll, function(d){ return d.dd; }), 0])
+          .range([C.height, 0]).nice();
+
+        addGrid(C.g, y, C.width);
+        addAxes(C.g, x, y, C.height);
+
+        var area = d3.area()
+          .x(function(d){ return x(d.date); })
+          .y0(function(){ return y(0); })
+          .y1(function(d){ return y(d.dd); });
+
+        var path = C.dataLayer.append("path")
+          .datum(ddAll)
+          .attr("fill", "rgba(70,130,180,0.22)")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.15)
+          .attr("d", area);
+
+        var bisect = d3.bisector(function(d){ return d.date; }).left;
+        var focus = C.dataLayer.append("g").style("display", "none");
+        focus.append("circle").attr("r", 4.3).attr("fill", "steelblue").attr("stroke", "white").attr("stroke-width", 1.5);
+
+        C.g.append("rect")
+          .attr("width", C.width)
+          .attr("height", C.height)
+          .attr("fill", "none")
+          .attr("pointer-events", "all")
+          .on("mouseover", function(){ focus.style("display", null); })
+          .on("mouseout", function(){ focus.style("display", "none"); hideTip(); })
+          .on("mousemove", function(){
+            var mouse = d3.mouse(this);
+            var x0 = x.invert(mouse[0]);
+            var i = bisect(ddAll, x0, 1);
+            var d0 = ddAll[i-1];
+            var d1 = ddAll[i];
+            var d = d1 && (x0 - d0.date > d1.date - x0) ? d1 : d0;
+
+            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.dd) + ")");
+            showTip(formatDate(d.date), ["Drawdown: " + fmtPct1(d.dd)], d3.event.pageX, d3.event.pageY);
+          });
+
+        function update(){
+          var dom = x.domain();
+          var series = ddAll.filter(function(d){ return d.date >= dom[0] && d.date <= dom[1]; });
+
+          var minDD = d3.min(series.length ? series : ddAll, function(d){ return d.dd; });
+          y.domain([minDD, 0]).nice();
+
+          C.g.select(".x-axis").call(d3.axisBottom(x).ticks(8));
+          C.g.select(".y-axis").call(d3.axisLeft(y).ticks(6));
+          C.g.select(".gridline").call(d3.axisLeft(y).ticks(6).tickSize(-C.width).tickFormat(""));
+          path.datum(series.length ? series : ddAll).attr("d", area);
+        }
+        updaters.push(update);
+      })();
+   
+      updaters.forEach(function(fn){ fn(); });
+
+      var resizeT = null;
+      window.addEventListener("resize", function(){
+        clearTimeout(resizeT);
+        resizeT = setTimeout(function(){ location.reload(); }, 250);
+      });
+    });
+  </script>
+</body>
+</html>
